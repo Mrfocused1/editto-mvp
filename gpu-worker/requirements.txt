@@ -1,0 +1,6 @@
+runpod==1.7.8
+boto3==1.35.71
+requests==2.32.3
+pillow==11.0.0
+numpy==1.26.4
+opencv-python==4.10.0.84
