@@ -7,6 +7,7 @@ import uuid
 from datetime import datetime
 import boto3
 from botocore.exceptions import ClientError
+from botocore.config import Config
 from pydantic import BaseModel
 from enum import Enum
 
@@ -42,7 +43,11 @@ s3_client = boto3.client(
     endpoint_url=R2_ENDPOINT,
     aws_access_key_id=R2_ACCESS_KEY,
     aws_secret_access_key=R2_SECRET_KEY,
-    region_name='auto'
+    region_name='auto',
+    config=Config(
+        signature_version='s3v4',
+        s3={'addressing_style': 'path'}
+    )
 )
 
 
