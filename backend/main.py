@@ -89,6 +89,18 @@ async def health():
     return {"status": "healthy"}
 
 
+@app.get("/debug/config")
+async def debug_config():
+    """Debug endpoint to verify environment variables (shows partial values only)"""
+    return {
+        "R2_ENDPOINT": R2_ENDPOINT,
+        "R2_ACCESS_KEY": f"{R2_ACCESS_KEY[:10]}...{R2_ACCESS_KEY[-5:]}" if R2_ACCESS_KEY else "NOT SET",
+        "R2_SECRET_KEY": f"{R2_SECRET_KEY[:10]}...{R2_SECRET_KEY[-5:]}" if R2_SECRET_KEY else "NOT SET",
+        "R2_BUCKET_NAME": R2_BUCKET_NAME,
+        "R2_PUBLIC_URL": R2_PUBLIC_URL,
+    }
+
+
 @app.post("/api/upload")
 async def upload_video(
     video: UploadFile = File(...),
