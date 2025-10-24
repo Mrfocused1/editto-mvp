@@ -14,7 +14,15 @@ from enum import Enum
 # Import database models and session
 from database import SessionLocal, engine, Base
 import models
-from tasks import process_video_task
+
+# Try to import Celery task, but make it optional
+try:
+    from tasks import process_video_task
+    CELERY_AVAILABLE = True
+except Exception as e:
+    print(f"Warning: Celery not available: {e}")
+    CELERY_AVAILABLE = False
+    process_video_task = None
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -147,13 +155,21 @@ async def upload_video(
         db.commit()
         db.refresh(db_job)
 
-        # Queue the processing task
-        process_video_task.delay(job_id, original_video_url, instruction)
+        # Queue the processing task (if Celery is available)
+        if CELERY_AVAILABLE and process_video_task:
+            try:
+                process_video_task.delay(job_id, original_video_url, instruction)
+                message = "Video uploaded successfully and queued for processing"
+            except Exception as celery_error:
+                print(f"Warning: Failed to queue Celery task: {celery_error}")
+                message = "Video uploaded successfully (processing will be manual)"
+        else:
+            message = "Video uploaded successfully (background processing not configured)"
 
         return {
             "job_id": job_id,
             "status": "pending",
-            "message": "Video uploaded successfully and queued for processing"
+            "message": message
         }
     except Exception as e:
         db.rollback()
