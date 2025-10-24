@@ -38,15 +38,18 @@ R2_BUCKET_NAME = os.getenv("R2_BUCKET_NAME", "editto-videos")
 R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "")
 
 # Initialize S3 client for Cloudflare R2
+# Strip any whitespace from credentials
+r2_access_key = R2_ACCESS_KEY.strip() if R2_ACCESS_KEY else ""
+r2_secret_key = R2_SECRET_KEY.strip() if R2_SECRET_KEY else ""
+
 s3_client = boto3.client(
     's3',
     endpoint_url=R2_ENDPOINT,
-    aws_access_key_id=R2_ACCESS_KEY,
-    aws_secret_access_key=R2_SECRET_KEY,
+    aws_access_key_id=r2_access_key,
+    aws_secret_access_key=r2_secret_key,
     region_name='auto',
     config=Config(
-        signature_version='s3v4',
-        s3={'addressing_style': 'path'}
+        signature_version='s3v4'
     )
 )
 
